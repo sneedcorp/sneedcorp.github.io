@@ -2,90 +2,633 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>SNEEDCORP™ CRYPTOTRADING | WHERE YOU LOSE BIGGER</title>
     <style>
         body {
-            background-color: #101010;
-            color: #00FF00;
+            background-color: #000000;
+            color: #00ff00;
             font-family: 'Courier New', Courier, monospace;
             text-align: center;
-            padding: 50px;
+            margin: 0;
+            padding: 0;
+            cursor: none;
+            overflow: hidden; /* Prevent scrollbars due to parallax */
+        }
+        #border {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            border: 20px dashed #ff00ff;
+            pointer-events: none;
+            z-index: 9999;
         }
         h1 {
-            font-size: 4em;
-            color: #FF3300;
-            text-shadow: 2px 2px 0 #000, -2px -2px 0 #222;
+            font-size: 3em;
+            color: #ff00ff;
+            margin-top: 50px;
+            z-index: 1;
+            position: relative;
         }
         h2 {
-            color: #FFCC00;
-            text-shadow: 1px 1px 5px #000;
+            color: #ffcc00;
+            z-index: 1;
+            position: relative;
         }
-        .glitch {
-            animation: glitch 2s infinite;
-        }
-        @keyframes glitch {
-            0% { text-shadow: 2px 2px red, -2px -2px blue; }
-            20% { text-shadow: -2px -2px red, 2px 2px blue; }
-            40% { text-shadow: 2px 2px red, -2px -2px blue; }
-            60% { text-shadow: -2px -2px red, 2px 2px blue; }
-            100% { text-shadow: 0 0 0 transparent; }
+        p {
+            z-index: 1;
+            position: relative;
         }
         .warning {
-            color: #FF3300;
+            color: #ff3300;
             font-size: 1.2em;
             animation: blink 1s infinite alternate;
+            z-index: 1;
+            position: relative;
         }
         @keyframes blink {
             from { opacity: 1; }
             to { opacity: 0; }
         }
         .btn {
-            padding: 20px;
-            background-color: #FF3300;
-            border: none;
-            color: white;
-            font-size: 1.5em;
-            cursor: pointer;
-            margin-top: 50px;
-            transition: background-color 0.5s;
+            padding: 15px;
+            background-color: #ff3300;
+            border: 3px solid #00ff00;
+            color: #00ff00;
+            font-size: 1em;
+            cursor: none;
+            margin-top: 30px;
+            transition: background-color 0.5s, transform 0.3s;
+            z-index: 1;
+            position: relative;
         }
         .btn:hover {
-            background-color: #FF6600;
+            background-color: #ff6600;
+            transform: scale(1.1);
+        }
+        #cursor {
+            position: fixed;
+            pointer-events: none;
+            z-index: 10000;
+        }
+        /* Goblin Banker */
+        #goblinBanker {
+            position: fixed;
+            bottom: 50px;
+            right: 50px;
+            width: 100px;
+            cursor: pointer;
+            z-index: 1000;
+            transform: scaleX(-1); /* Flip image horizontally */
+            transition: transform 0.3s;
+        }
+        #goblinBanker:hover {
+            transform: scaleX(1); /* Flip back on hover */
+        }
+        /* Sound Toggle Button */
+        #soundToggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 10px 20px;
+            background-color: #ff3300;
+            border: 2px solid #00ff00;
+            color: #00ff00;
+            cursor: pointer;
+            z-index: 1001;
+            transition: background-color 0.3s;
+        }
+        #soundToggle:hover {
+            background-color: #ff6600;
+        }
+        /* Tooltip Styling */
+        .tooltip {
+            position: absolute;
+            background-color: rgba(0, 0, 0, 0.8);
+            color: #ffffff;
+            padding: 5px 10px;
+            border-radius: 5px;
+            pointer-events: none;
+            font-size: 0.9em;
+            z-index: 10002;
+            display: none;
+        }
+        /* Score Display */
+        #score {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            padding: 10px 20px;
+            background-color: rgba(0,0,0,0.5);
+            border: 2px solid #00ff00;
+            color: #00ff00;
+            font-size: 1.2em;
+            z-index: 1001;
+            border-radius: 5px;
+        }
+        /* Health Display - moved down */
+        #health {
+            position: fixed;
+            top: 80px; /* Changed from 20px to 60px */
+            right: 20px;
+            padding: 10px 20px;
+            background-color: rgba(0,0,0,0.5);
+            border: 2px solid #ff0000;
+            color: #ff0000;
+            font-size: 1.2em;
+            z-index: 1001;
+            border-radius: 5px;
+        }
+        /* Health Bar Container */
+        #healthBarContainer {
+            width: 200px;
+            height: 25px;
+            background-color: #555;
+            border: 2px solid #ff0000;
+            border-radius: 5px;
+            overflow: hidden;
+            margin-top: 5px;
+        }
+        /* Health Bar */
+        #healthBar {
+            width: 100%;
+            height: 100%;
+            background-color: #ff0000;
+            transition: width 0.3s ease;
+        }
+        /* Game Over Overlay */
+        #gameOverOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(15, 15, 15, 0.95);
+            color: #ff0000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            font-size: 2em;
+            z-index: 10003;
+            display: none;
+        }
+        #gameOverOverlay button {
+            padding: 15px 30px;
+            background-color: #00ff00;
+            border: 3px solid #ff00ff;
+            color: #0f0f0f;
+            font-size: 1em;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background-color 0.5s, transform 0.3s;
+        }
+        #gameOverOverlay button:hover {
+            background-color: #00cc00;
+            transform: scale(1.1);
+        }
+        /* Crosshair */
+        #crosshair {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            pointer-events: none;
+            z-index: 10004;
+        }
+        /* Ensure the Three.js canvas covers the entire viewport */
+        #threeCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0; /* Behind all UI elements */
         }
     </style>
 </head>
 <body>
-    <h1 class="glitch">WELCOME TO SNEEDCORP™ CRYPTOTRADING</h1>
-    <h2>🚀 RIDE THE CHAOS 🏴‍☠️</h2>
-    <p>Feeling lucky? You've entered the darkest corner of crypto-finance. Welcome to a world where reality is **optional**, and the only certainty is gem or coal <br>Prepare for **liquidation**.</p>
+    <div id="border"></div>
+    <img id="cursor" src="https://media.tenor.com/BEd8XvEMCeYAAAAi/cruelty-squad.gif" alt="Custom Cursor" width="32" height="32">
+
+    <h1>WELCOME TO SNEEDCORP™ CRYPTOTRADING</h1>
+    <img src="https://media1.tenor.com/m/G2HMmUtWLbEAAAAd/cruelty-squad.gif" alt="crvel">
+
+    <h2>RIDE THE CHAOS</h2>
+    <p>Feeling lucky? You've entered the darkest corner of crypto-finance. Welcome to a world where reality is optional, and the only certainty is the void. Prepare for financial obliteration.</p>
     
-    <p class="warning">⚠️ DANGER: SneedCoin trading may result in psychological breakdowns ⚠️</p>
+    <p class="warning">DANGER: SneedCoin trading may result in psychological breakdowns</p>
     
-    <div>
-        <img src="https://media.tenor.com/G2HMmUtWLbEAAAAM/cruelty-squad.gif" alt="SneedCoin Madness" width="400px">
+    <!-- Score Display -->
+    <div id="score">Score: 0</div>
+    
+    <!-- Health Display - moved down -->
+    <div id="health">
+        Health: 100
+        <div id="healthBarContainer">
+            <div id="healthBar"></div>
+        </div>
     </div>
 
-    <h2>🔒 Features 🔒</h2>
-    <ul style="list-style:none;">
-        <li>❌ *NO* transaction fees – because there *are no* transactions 🧨</li>
-        <li>💸 RNG-based market – Win, lose, or rope n cope 🌀</li>
-        <li>💀 Anti-SneedSnipe protection – Stay in or forever regret it ⚔️</li>
-        <li>⚡ Hyperinflation Simulation – Trade through the **end of days** ⏳</li>
-    </ul>
 
-    <p style="color:#FFCC00;">"Nothing is real. Everything is **Sneed**." – **CEO of SneedCorp™**</p>
 
-    <button class="btn" onclick="alert('Download not available – because why would it be?')">💾 Download SneedCoin Trader</button>
 
-    <h2 class="glitch">👹 TROUBLESHOOTING 👹</h2>
-    <p>If the **SneedCoins** won’t transfer, then you've already lost. **liquidate..**</p>
-    <p>Graphs showing impossible values? Congratulations, you broke through to **Sneedverse**.</p>
+    <p>"Nothing is real. Everything is Sneed." – CEO of SneedCorp™</p>
+    <button class="btn" onclick="alert('Download not available – because why would it be?')">Download SneedCoin Trader</button>
+    <h2>TROUBLESHOOTING</h2>
+    <p>If the SneedCoins won't transfer, then you've already lost. Reboot your life.</p>
+    <p>Graphs showing impossible values? Congratulations, you broke through to Sneedverse.</p>
     
-    <footer style="margin-top: 100px; color: #888;">
-        ©202X SneedCorp™ | Unauthorized trading may result in <em>extreme mental peril</em>. <br>
+    <footer style="margin-top: 100px; color: #888; z-index: 1; position: relative;">
+        ©202X SneedCorp™ | Unauthorized trading may result in extreme mental peril.<br>
         Not actual financial advice. Sneed responsibly.
     </footer>
+
+    <!-- Goblin Banker Image -->
+    <img id="goblinBanker" src="https://i.ibb.co/7jHPLZn/ezgif-2-e52f3f6f7f.gif" alt="Goblin Banker">
+
+    <!-- Sound Toggle Button -->
+    <button id="soundToggle">🔇 Sound Off</button>
+
+    <!-- Background Audio -->
+    <audio id="backgroundAudio" loop>
+        <source src="https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+
+    <!-- Shooting and Hit Sounds -->
+    <audio id="shootSound">
+        <source src="https://www.soundjay.com/button/sounds/button-16.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+    <audio id="hitSound">
+        <source src="https://www.soundjay.com/button/sounds/button-09.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+
+    <!-- Tooltip Element -->
+    <div id="tooltip" class="tooltip"></div>
+
+    <!-- Game Over Overlay -->
+    <div id="gameOverOverlay">
+        <div>GAME OVER</div>
+        <div id="finalScore">Your Score: 0</div>
+        <button onclick="restartGame()">Restart Game</button>
+    </div>
+
+    <!-- Crosshair -->
+    <img id="crosshair" src="https://i.imgur.com/6RMhx.gif" alt="Crosshair" width="50" height="50">
+
+    <!-- Three.js Canvas -->
+    <canvas id="threeCanvas"></canvas>
+
+    <script type="importmap">
+        {
+            "imports": {
+                "three": "https://unpkg.com/three@0.155.0/build/three.module.js",
+                "three/addons/": "https://unpkg.com/three@0.155.0/examples/jsm/",
+                "dat.gui": "https://unpkg.com/dat.gui@0.7.9/build/dat.gui.module.js"
+            }
+        }
+    </script>
+
+    <script type="module">
+        import * as THREE from 'three';
+        import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
+
+        // Initialize startTime and gameStarted at the very beginning
+        const startTime = Date.now();
+        let gameStarted = false;
+
+        // Custom cursor
+        const cursor = document.getElementById('cursor');
+        document.addEventListener('mousemove', (e) => {
+            cursor.style.left = e.clientX - 16 + 'px';
+            cursor.style.top = e.clientY - 16 + 'px';
+        });
+
+        // Goblin Banker interaction
+        const goblinBanker = document.getElementById('goblinBanker');
+        goblinBanker.addEventListener('click', () => {
+            alert('The goblin banker chuckles ominously...');
+        });
+
+        // Background Audio Control
+        const backgroundAudio = document.getElementById('backgroundAudio');
+        const soundToggle = document.getElementById('soundToggle');
+        let isPlaying = false;
+
+        soundToggle.addEventListener('click', () => {
+            if (isPlaying) {
+                backgroundAudio.pause();
+                soundToggle.textContent = '🔇 Sound Off';
+            } else {
+                backgroundAudio.play();
+                soundToggle.textContent = '🔊 Sound On';
+            }
+            isPlaying = !isPlaying;
+        });
+
+        // Initialize with sound off
+        soundToggle.textContent = '🔇 Sound Off';
+
+        // Tooltip Setup
+        const tooltip = document.getElementById('tooltip');
+
+        // Game Over Overlay
+        const gameOverOverlay = document.getElementById('gameOverOverlay');
+        const finalScore = document.getElementById('finalScore');
+
+        // Sound Effects
+        const shootSound = document.getElementById('shootSound');
+        const hitSound = document.getElementById('hitSound');
+
+        // Three.js 3D Scene Setup
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(
+            75,
+            window.innerWidth / window.innerHeight,
+            0.1,
+            1000
+        );
+        const renderer = new THREE.WebGLRenderer({
+            canvas: document.getElementById('threeCanvas'),
+            alpha: true,
+            antialias: true
+        });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(window.devicePixelRatio);
+
+        // Set initial camera position to be zoomed out (closer to scene)
+        camera.position.set(0, 5, 30); // Adjusted for better visibility
+        camera.lookAt(0, 0, 0);
+
+        // Add ambient light to the scene
+        const ambientLight = new THREE.AmbientLight(0x00ff00, 0.5);
+        scene.add(ambientLight);
+
+        // Add directional light for shadows and depth
+        const directionalLight = new THREE.DirectionalLight(0xffffff, 1);
+        directionalLight.position.set(0, 50, 50);
+        scene.add(directionalLight);
+        const textureLoader = new THREE.TextureLoader();
+
+        // Create ground
+        const groundGeometry = new THREE.PlaneGeometry(100, 100);
+        const groundtext = textureLoader.load('https://i2.pngimg.me/thumb/f/720/m2i8m2b1d3i8b1A0.jpg'); // Replace with your little person image URL
+
+        const groundMaterial = new THREE.MeshPhongMaterial({ map: groundtext, side: THREE.DoubleSide });
+        const ground = new THREE.Mesh(groundGeometry, groundMaterial);
+        ground.rotation.x = - Math.PI / 2;
+        scene.add(ground);
+
+        // Player settings
+        const player = {
+            score: 0,
+            health: 100,
+            canShoot: true
+        };
+
+        // Score Display
+        const scoreDisplay = document.getElementById('score');
+        const healthDisplay = document.getElementById('health');
+        const healthBar = document.getElementById('healthBar');
+
+        // Array to hold moneymen
+        const moneymen = [];
+
+        // Moneyman class
+        class Moneyman {
+            constructor() {
+                const geometry = new THREE.PlaneGeometry(2, 2); // Smaller size for little people
+                const texture = textureLoader.load('https://i.imgur.com/W2QSZeG.gif'); // Replace with your little person image URL
+                const material = new THREE.MeshBasicMaterial({ map: texture, transparent: true, side: THREE.DoubleSide });
+                this.mesh = new THREE.Mesh(geometry, material);
+                // Random spawn position within a certain range
+                this.mesh.position.set(
+                    (Math.random() - 0.5) * 50,
+                    1,
+                    -Math.random() * 100 - 10
+                );
+                this.speed = Math.random() * 0.1 + 0.05; // Increased speed for more challenge
+                scene.add(this.mesh);
+                this.isHit = false;
+            }
+
+            update() {
+                this.mesh.position.z += this.speed;
+                // Rotate for a strange effect
+                // Check if reached player
+                if (this.mesh.position.z > 100 && !this.isHit) {
+                    this.hitPlayer();
+                }
+            }
+
+            hitPlayer() {
+                this.isHit = true;
+                // Decrease player's health
+                player.health -= 0.5;
+                updateHealthDisplay();
+                // Play hit sound
+                hitSound.currentTime = 0;
+                hitSound.play();
+                // Remove from scene after a short delay
+                setTimeout(() => {
+                    scene.remove(this.mesh);
+                    const index = moneymen.indexOf(this);
+                    if (index > -1) {
+                        moneymen.splice(index, 1);
+                    }
+                    // Check for game over
+                    if (player.health <= 0) {
+                        endGame();
+                    }
+                }, 100);
+            }
+
+            hit() {
+                this.isHit = true;
+                // Play hit sound
+                hitSound.currentTime = 0;
+                hitSound.play();
+                // Remove from scene
+                scene.remove(this.mesh);
+                const index = moneymen.indexOf(this);
+                if (index > -1) {
+                    moneymen.splice(index, 1);
+                }
+                // Update score
+                player.score += 10;
+                updateScoreDisplay();
+            }
+        }
+
+        // Function to spawn moneymen
+        function spawnMoneyman() {
+            const moneyman = new Moneyman();
+            moneymen.push(moneyman);
+        }
+
+        // Spawn moneymen at random intervals
+        let spawnInterval = setInterval(() => {
+            if (moneymen.length < 20) { // Limit number of moneymen
+                spawnMoneyman();
+            }
+        }, 1000); // Every second
+
+        // Shooting mechanics
+        window.addEventListener('click', (event) => {
+            shoot();
+        });
+
+        function shoot() {
+            if (!player.canShoot) return;
+            player.canShoot = false;
+            // Play shoot sound
+            shootSound.currentTime = 0;
+            shootSound.play();
+
+            // Create a raycaster from camera to center of screen
+            const raycaster = new THREE.Raycaster();
+            const mouse = new THREE.Vector2(0, 0); // Center of screen
+            raycaster.setFromCamera(mouse, camera);
+
+            // Check intersection with moneymen
+            const intersects = raycaster.intersectObjects(moneymen.map(m => m.mesh));
+
+            if (intersects.length > 0) {
+                intersects.forEach(intersect => {
+                    const hitMoneyman = moneymen.find(m => m.mesh === intersect.object);
+                    if (hitMoneyman) {
+                        hitMoneyman.hit();
+                    }
+                });
+            }
+
+            // Allow shooting again after a short delay
+            setTimeout(() => {
+                player.canShoot = true;
+            }, 300); // 300ms delay
+        }
+
+        // Update Score Display
+        function updateScoreDisplay() {
+            scoreDisplay.textContent = `Score: ${player.score}`;
+        }
+
+        // Update Health Display
+        function updateHealthDisplay() {
+            healthDisplay.children[0].textContent = `Health: ${player.health}`;
+            healthBar.style.width = `${player.health}%`;
+            if (player.health > 60) {
+                healthBar.style.backgroundColor = '#00ff00';
+            } else if (player.health > 30) {
+                healthBar.style.backgroundColor = '#ffcc00';
+            } else {
+                healthBar.style.backgroundColor = '#ff0000';
+            }
+        }
+
+        // Game Over Function
+        function endGame() {
+            clearInterval(spawnInterval); // Stop spawning moneymen
+            backgroundAudio.pause();
+            gameOverOverlay.style.display = 'flex';
+            finalScore.textContent = `Your Score: ${player.score}`;
+        }
+
+        // Restart Game Function
+        function restartGame() {
+            // Reset score and health
+            player.score = 0;
+            player.health = 100;
+            updateScoreDisplay();
+            updateHealthDisplay();
+            
+            // Remove existing moneymen
+            moneymen.forEach(m => scene.remove(m.mesh));
+            moneymen.length = 0;
+            
+            // Hide game over overlay
+            gameOverOverlay.style.display = 'none';
+            
+            // Resume background audio
+            isPlaying = true;
+            backgroundAudio.play();
+            soundToggle.textContent = '🔊 Sound On';
+
+            // Resume spawning moneymen
+            spawnInterval = setInterval(() => {
+                if (moneymen.length < 20) { // Limit number of moneymen
+                    spawnMoneyman();
+                }
+            }, 1000); // Every second
+        }
+
+        // Expose restartGame to global scope
+        window.restartGame = restartGame;
+
+        // Animation Loop
+        function animate() {
+            requestAnimationFrame(animate);
+
+            // Update moneymen
+            moneymen.forEach(moneyman => moneyman.update());
+
+            // Smooth camera zoom in after 30 seconds
+            if (Date.now() - startTime >= 30000 && !gameStarted) {
+                gameStarted = true;
+                zoomOutCamera();
+            }
+
+            renderer.render(scene, camera);
+        }
+
+        animate();
+
+        // Zoom Out Camera Function
+        function zoomOutCamera() {
+            const duration = 5000; // 5 seconds
+            const initialPosition = camera.position.clone();
+            const targetPosition = new THREE.Vector3(0, 5, 20);
+            const initialTime = Date.now();
+
+            function animateCamera() {
+                const elapsed = Date.now() - initialTime;
+                const t = Math.min(elapsed / duration, 1); // Clamp t to [0,1]
+
+                camera.position.lerpVectors(initialPosition, targetPosition, easeInOutQuad(t));
+                camera.lookAt(0, 0, 0);
+
+                if (t < 1) {
+                    requestAnimationFrame(animateCamera);
+                }
+            }
+
+            animateCamera();
+        }
+
+        // Easing function for smooth transition
+        function easeInOutQuad(t) {
+            return t < 0.5 ? 2 * t * t : -1 + (4 - 2 * t) * t;
+        }
+
+        // Handle window resize
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        // Start background audio on load
+        window.addEventListener('load', () => {
+            // Automatically start background audio muted
+            backgroundAudio.volume = 0.5;
+            backgroundAudio.play();
+            isPlaying = true;
+            soundToggle.textContent = '🔊 Sound On';
+        });
+    </script>
 </body>
 </html>
